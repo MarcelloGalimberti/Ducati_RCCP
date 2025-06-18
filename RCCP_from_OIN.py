@@ -32,8 +32,7 @@ st.write(
     '\n- abbinamento modello-famiglia '
     '\n- CDC Veicolo 2026 '
     '\n- CDC Motore 2026 '
-    '\n- Calendario RCCP 2026 '
-    '\n- infine, il file PPP 2026 deve essere caricato tramite un uploader.')
+    '\n- infine, i file PPP 2026 e Calendario RCCP 2026 devono essere caricato tramite uploader.')
 
 ####### Caricamento dati
 
@@ -78,6 +77,17 @@ uploaded_files = st.file_uploader(
 )
 if not uploaded_files:
     st.stop()
+
+# Caricamento del file Calendario PPP 2026
+st.header('Caricamento Calendario 2026', divider='red')
+uploaded_calendario = st.file_uploader(
+    "Carica Calendario 2026 (Calendario_RCCP_2026.xlsx)",
+    #accept_multiple_files=True # caricarli tutti e poi selezionare 2026 (in un secondo momento, 2030 è diverso)
+)
+if not uploaded_calendario:
+    st.stop()
+
+
 
 # Caricamento del file PPP 2026, specificando il nome del foglio e le righe da saltare
 df_PPP = pd.read_excel(uploaded_files, sheet_name='PR74 OP 2026', skiprows=[1, 2, 3, 4, 5, 6, 7, 8, 9], header=0)
@@ -152,9 +162,9 @@ st.plotly_chart(fig, use_container_width=True)
 ###########
 # Caricamento del file Calendario RCCP 2026
 
-url_calendario_RCCP_2026 = 'https://github.com/MarcelloGalimberti/Ducati_RCCP/blob/main/Calendario_RCCP_2026.xlsx?raw=true'
+#url_calendario_RCCP_2026 = 'https://github.com/MarcelloGalimberti/Ducati_RCCP/blob/main/Calendario_RCCP_2026.xlsx?raw=true'
 
-df_TC = pd.read_excel(url_calendario_RCCP_2026, sheet_name='DB_Risorse Mensile', parse_dates=True)
+df_TC = pd.read_excel(uploaded_calendario, sheet_name='DB_Risorse Mensile', parse_dates=True)
 df_TC.rename(columns={'FAMIGLIA': 'Famiglia', 'MESE': 'Data'}, inplace=True)
 
 # Merge con volumi
