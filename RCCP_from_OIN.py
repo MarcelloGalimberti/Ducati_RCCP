@@ -16,7 +16,7 @@ import calendar
 
 st.set_page_config(layout="wide")
 
-url_immagine = 'Ducati_red_logo-4.png'#?raw=true'
+url_immagine = 'https://github.com/MarcelloGalimberti/Ducati_RCCP/blob/main/Ducati_red_logo-4.PNG?raw=true'
 
 col_1, col_2 = st.columns([1, 5])
 
@@ -29,19 +29,24 @@ with col_2:
 st.header('Caricamento dati da remoto | GitHub', divider='red')
 st.write(
     'Dati caricati da file Excel presenti su GitHub: '
-    '- abbinamento modello-famiglia '
-    '- CDC Veicolo 2026 '
-    '- CDC Motore 2026 '
-    '- Calendario RCCP 2026 '
-    'Infine, il file PPP 2026 deve essere caricato tramite un uploader.')
+    '\n- abbinamento modello-famiglia '
+    '\n- CDC Veicolo 2026 '
+    '\n- CDC Motore 2026 '
+    '\n- Calendario RCCP 2026 '
+    '\n- infine, il file PPP 2026 deve essere caricato tramite un uploader.')
 
 ####### Caricamento dati
+
+url_CDC_veicolo_2026 = 'https://github.com/MarcelloGalimberti/Ducati_RCCP/blob/main/CDC%20Veicolo%202026.xlsx?raw=true'
+url_CDC_motore_2026 = 'https://github.com/MarcelloGalimberti/Ducati_RCCP/blob/main/CDC%20Motore%202026.xlsx?raw=true'
+
+
 # Caricamento dei file Excel con i dati delle famiglie, linee e mesi per veicolo e motore
-df_famiglia_linea_mese_veicolo = pd.read_excel('CDC Veicolo 2026.xlsx')#, parse_dates=True, index_col=0)
+df_famiglia_linea_mese_veicolo = pd.read_excel(url_CDC_veicolo_2026)#, parse_dates=True, index_col=0)
 df_melt_veicolo = df_famiglia_linea_mese_veicolo.melt(id_vars='FAMIGLIA')
 df_melt_veicolo.columns=['famiglia','anno-mese','linea'] 
 
-df_famiglia_linea_mese_motore = pd.read_excel('CDC Motore 2026.xlsx')#, parse_dates=True, index_col=0)
+df_famiglia_linea_mese_motore = pd.read_excel(url_CDC_motore_2026)#, parse_dates=True, index_col=0)
 df_melt_motore = df_famiglia_linea_mese_motore.melt(id_vars='FAMIGLIA')
 df_melt_motore.columns=['famiglia','anno-mese','linea']
 
@@ -57,15 +62,18 @@ df_melt.rename(columns={'Anno-Mese': 'Data', 'Linea':'CDC'}, inplace=True)
 #st.write('Abbinamento famiglie, linee e mesi per veicolo e motore:')
 #st.dataframe(df_melt, use_container_width=True)
 
+
+url_abbinamento_modello_famiglia = 'https://github.com/MarcelloGalimberti/Ducati_RCCP/blob/main/abbinamento_modello_famiglia.xlsx?raw=true'
+
 # Caricamento del file di abbinamento modello-famiglia
-df_modello_famiglia = pd.read_excel('abbinamento_modello_famiglia.xlsx')#, parse_dates=True, index_col=0)
+df_modello_famiglia = pd.read_excel(url_abbinamento_modello_famiglia)#, parse_dates=True, index_col=0)
 #st.write('Abbinamento Modello - Famiglia:')
 #st.dataframe(df_modello_famiglia, use_container_width=True)
 
 # Caricamento del file PPP 2026
 st.header('Caricamento PPP 2026', divider='red')
 uploaded_files = st.file_uploader(
-    "Carica PPP 2026",
+    "Carica PPP 2026 (PR74OP 2026 Bologna_esp 002_.xlsx)",
     #accept_multiple_files=True # caricarli tutti e poi selezionare 2026 (in un secondo momento, 2030 è diverso)
 )
 if not uploaded_files:
@@ -144,7 +152,9 @@ st.plotly_chart(fig, use_container_width=True)
 ###########
 # Caricamento del file Calendario RCCP 2026
 
-df_TC = pd.read_excel('Calendario_RCCP_2026.xlsx', sheet_name='DB_Risorse Mensile', parse_dates=True)
+url_calendario_RCCP_2026 = 'https://github.com/MarcelloGalimberti/Ducati_RCCP/blob/main/Calendario_RCCP_2026.xlsx?raw=true'
+
+df_TC = pd.read_excel(url_calendario_RCCP_2026, sheet_name='DB_Risorse Mensile', parse_dates=True)
 df_TC.rename(columns={'FAMIGLIA': 'Famiglia', 'MESE': 'Data'}, inplace=True)
 
 # Merge con volumi
@@ -308,7 +318,7 @@ def to_excel_bytes(df):
 # Crea il bottone per scaricare file Saturazione
 saturazione_file = to_excel_bytes(pivot_df)
 st.download_button(
-    label="📥 Scarica file saturazione",
+    label="📥 Scarica file Excel saturazione",
     data=saturazione_file,
     file_name='df_saturazione.xlsx',
     mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -406,7 +416,7 @@ st.dataframe(pivot_famiglia, use_container_width=True)
 # Crea il bottone per scaricare file Saturazione per Famiglia
 saturazione_famiglia_file = to_excel_bytes(pivot_famiglia)
 st.download_button(
-    label="📥 Scarica file saturazione per famiglia",
+    label="📥 Scarica file Excel saturazione per famiglia",
     data=saturazione_famiglia_file,
     file_name='df_saturazione_famiglia.xlsx',
     mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
