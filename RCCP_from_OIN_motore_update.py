@@ -1,6 +1,7 @@
 # env neuralprophet
 
-# 29/09/25
+# 07/10/25
+# per il deployment forzare python 3.11 in streamlit
 #   RCCP 2026 Motore
 # aggiornamento con i nuovi file
 
@@ -8,7 +9,7 @@
 import pandas as pd
 import numpy as np
 import warnings
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import plotly.express as px
 warnings.filterwarnings('ignore')
 from io import BytesIO
@@ -20,7 +21,7 @@ import calendar
 
 st.set_page_config(layout="wide")
 
-url_immagine = 'https://github.com/MarcelloGalimberti/Ducati_RCCP/blob/main/Ducati_red_logo-4.PNG?raw=true'
+url_immagine = 'https://github.com/MarcelloGalimberti/RCCP_motore/blob/main/Ducati_red_logo-4.PNG?raw=true'
 
 col_1, col_2 = st.columns([1, 4])
 with col_1:
@@ -39,18 +40,6 @@ uploaded_cdc_motore = st.file_uploader(
 )
 if not uploaded_cdc_motore:
     st.stop()
-
-
-
-
-#url_CDC_veicolo_2026 = 'https://github.com/MarcelloGalimberti/Ducati_RCCP/blob/main/CDC%20Veicolo%202026.xlsx?raw=true'
-#url_CDC_motore_2026 = 'https://github.com/MarcelloGalimberti/Ducati_RCCP/blob/main/CDC%20Motore%202026.xlsx?raw=true'
-
-
-# Caricamento dei file Excel con i dati delle famiglie, linee e mesi per veicolo e motore
-# df_famiglia_linea_mese_veicolo = pd.read_excel(uploaded_cdc_motore)#, parse_dates=True, index_col=0)
-# df_melt_veicolo = df_famiglia_linea_mese_veicolo.melt(id_vars='FAMIGLIA')
-# df_melt_veicolo.columns=['famiglia','anno-mese','linea'] 
 
 df_famiglia_linea_mese_motore = pd.read_excel(uploaded_cdc_motore)#, parse_dates=True, index_col=0)
 df_melt_motore = df_famiglia_linea_mese_motore.melt(id_vars='FAMIGLIA')
@@ -108,8 +97,6 @@ if foglio_selezionato_PPP == '--- seleziona un foglio ---':
 
 
 
-# versione attuale: MESE	ore/mese	REPARTO	CDC	Cluster risorse	RISORSA PRIMARIA	MOLTEPLICITA'	FAMIGLIA VEICOLO	FAMIGLIA MOTORE	OEE	T.C.	TURNO
-# versione precedente: MESE	ore/mese	REPARTO	CDC	Cluster risorse	RISORSA PRIMARIA	MOLTEPLICITA'	FAMIGLIA	OEE	T.C.	TURNO
 # Caricamento del file Calendario PPP 2026
 st.header('Caricamento Calendario 20xx', divider='red')
 uploaded_calendario = st.file_uploader(
@@ -135,29 +122,10 @@ df_PPP = pd.read_excel(uploaded_file, sheet_name=foglio_selezionato_PPP, skiprow
 
 df_anno_PPP = pd.read_excel(uploaded_file, sheet_name=foglio_selezionato_PPP, nrows=1, header=None)
 
-# st.write('cdc motore: df_melt:')
-# st.dataframe(df_melt)
-
-# st.write('Abbinamento modello famiglia caricato: df_modello_famiglia')
-# st.dataframe(df_modello_famiglia, use_container_width=True)
-
-# st.write('PPP caricato:')
-# st.dataframe (df_PPP, use_container_width=True)
-
-# # st.write('Intestazione PPP (anni):')
-# # st.dataframe(df_anno_PPP, use_container_width=True)
-
-# st.write('Calendario caricato: df_TC')
-# st.dataframe(pd.read_excel(uploaded_calendario, sheet_name=foglio_selezionato_calendario, parse_dates=True), use_container_width=True)
-
 
 # prende da df_annp_PPP la seconda parola della prima riga e prima colonna
 anno_PPP = str(df_anno_PPP.iat[0, 0]).split()[1]
 #st.write('Anno PPP selezionato:', anno_PPP)
-
-
-
-# aggiungere selezione dell'anno ======================
 
 # Elimina le colonne non necessarie
 df_PPP = df_PPP.drop(columns=['I°sem', 'II°sem', 'TOT'])
@@ -268,9 +236,6 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True)
 
-# st.write('df_unpivot:')
-# st.dataframe(df_unpivot, use_container_width=True)
-
 df_TC = pd.read_excel(uploaded_calendario, sheet_name=foglio_selezionato_calendario, parse_dates=True)
 df_TC.rename(columns={'FAMIGLIA MOTORE': 'Famiglia Motore', 'MESE': 'Data'}, inplace=True)
 
@@ -287,16 +252,10 @@ df_RCCP = pd.merge(
 )
 
 
-# st.write('df_RCCP')
-# st.dataframe(df_RCCP, use_container_width=True)
-
 df_melt = df_melt.merge(df_modello_famiglia[['Famiglia Veicolo', 'Famiglia Motore']], left_on='Famiglia', right_on='Famiglia Veicolo', how='left')
 df_melt.drop(columns=['Famiglia Veicolo'], inplace=True)
 df_melt.drop_duplicates(inplace=True)
 df_melt.reset_index(drop=True, inplace=True)
-
-# st.write('df_melt con Famiglia Motore:')
-# st.dataframe(df_melt, use_container_width=True)
 
 
 # Merge linee veicolo e motore con Qty
@@ -309,15 +268,10 @@ df_linee = pd.merge(
 )
 
 
-
 df_linee.drop(columns=['Famiglia'], inplace=True)
 df_linee.drop_duplicates(inplace=True)
 df_linee.reset_index(drop=True, inplace=True)
 
-
-
-# st.write('df_linee')
-# st.dataframe(df_linee, use_container_width=True)
 
 # Crea DataFrame cdc_motore con concatenazione delle famiglie motore
 cdc_motore = (
@@ -329,15 +283,8 @@ cdc_motore = (
     .rename(columns={'Famiglia Motore': 'Famiglie'})
 )
 
-# st.write('cdc_motore')
-# st.dataframe(cdc_motore, use_container_width=True)
-
-
 
 df_aggregato = df_linee.groupby(['Data', 'CDC'])['Qty'].sum().reset_index()
-
-# st.write('df_aggregato')
-# st.dataframe(df_aggregato, use_container_width=True)
 
 
 # Filtra df_RCCP per mantenere solo le linee presenti in df_linee
@@ -353,10 +300,6 @@ df_merge = df_RCCP[df_RCCP_mask].merge(
 )
 
 
-# st.write('df_merge')
-# st.dataframe(df_merge, use_container_width=True)
-
-
 # Fai un merge per unire i dati da df_merge su Data e CDC
 df_temp = df_RCCP.merge(
     df_merge[['Data', 'CDC', 'Qty_from_linee']],
@@ -369,67 +312,6 @@ df_temp['Qty'] = df_temp['Qty_from_linee'].combine_first(df_temp['Qty'])
 
 # Rimuovi la colonna temporanea
 df_RCCP = df_temp.drop(columns='Qty_from_linee')
-
-# st.write('df_RCCP dopo merge con linee')
-# st.dataframe(df_RCCP, use_container_width=True)
-
-
-########
-# Filtra solo i CDC di interesse (banchi riparazione)
-# cdc_target = [571, 572]
-# maschera_cdc = df_RCCP['CDC'].isin(cdc_target)
-
-# # Merge su 'Data' per ottenere i nuovi Qty
-# df_merge = df_RCCP.merge(
-#     df_volumi_per_mese[['Data', 'Qty']],
-#     on='Data',
-#     how='left',
-#     suffixes=('', '_nuovo')
-# )
-
-# # Sostituzione condizionata: CDC in [571,572] e Qty_nuovo disponibile
-# df_merge['Qty'] = df_merge.apply(
-#     lambda row: row['Qty_nuovo'] if row['CDC'] in cdc_target and pd.notnull(row['Qty_nuovo']) else row['Qty'],
-#     axis=1
-# )
-
-# # Elimina la colonna temporanea
-# df_RCCP = df_merge.drop(columns='Qty_nuovo')
-
-
-
-# df_RCCP = df_RCCP[df_RCCP['CDC'].isin(cdc_motore)]
-
-# st.write('df_RCCP')
-# st.dataframe(df_RCCP, use_container_width=True)
-
-
-# Aggiunge famiglie
-
-# 1. Raggruppa df_melt per Data e CDC, concatenando Famiglie
-# df_famiglie_concat = (
-#     df_melt
-#     .dropna(subset=['Famiglia'])
-#     .groupby(['Data', 'CDC'])['Famiglia']
-#     .apply(lambda x: ', '.join(sorted(set(map(str, x)))))
-#     .reset_index()
-# )
-
-# # 2. Crea dizionario (Data, CDC) → stringa concatenata
-# famiglia_dict = {
-#     (row['Data'], row['CDC']): row['Famiglia']
-#     for _, row in df_famiglie_concat.iterrows()
-# }
-
-# # 3. Funzione di aggiornamento condizionato
-# def aggiorna_famiglia(row):
-#     if row['CDC'] in [571, 572]:
-#         return "Tutte le famiglie"
-#     key = (row['Data'], row['CDC'])
-#     return famiglia_dict.get(key, row['Famiglia'])
-
-# # 4. Applica la funzione al dataframe
-# df_RCCP['Famiglia'] = df_RCCP.apply(aggiorna_famiglia, axis=1)
 
 
 #########
@@ -597,18 +479,7 @@ pivot_famiglia[fam_cols] = pivot_famiglia[fam_cols] \
     .round(1) \
     .astype(str) + '%'
 
-# st.write('pivot_famiglia dopo la formattazione iniziale:')
-# st.dataframe(pivot_famiglia, use_container_width=True)  
 
-
-#########
-
-# 1. (Solo se devi ricreare il df da dict, altrimenti salta)
-# pivot_famiglia = pd.DataFrame(dati) # <-- solo se il df non esiste già
-
-# 2. Colonne chiave
-# indici = ['Data', 'RISORSA PRIMARIA', 'Saturazione']
-# fam_cols = [c for c in pivot_famiglia.columns if c not in indici]
 
 # 3. Funzione robusta per convertire le stringhe percentuali in float
 def clean_pct(val):
@@ -627,8 +498,6 @@ def clean_pct(val):
 # 4. Applica la funzione su ogni valore delle colonne Famiglia
 df_numeric = pivot_famiglia[fam_cols].applymap(clean_pct)
 
-# st.write('df_numeric:')
-# st.dataframe(df_numeric, use_container_width=True)
 
 
 # 5. Per ogni riga: se TUTTE le colonne famiglia sono nan, la saturazione sarà vuota, altrimenti la somma formattata
@@ -646,10 +515,6 @@ pivot_famiglia[fam_cols] = pivot_famiglia[fam_cols].replace('nan%', '', regex=Fa
 
 st.subheader('Tabella di Saturazione per Famiglia:', divider='red')
 st.dataframe(pivot_famiglia, use_container_width=True)
-
-# st.write('pivot_famiglia finale:')
-# st.dataframe(pivot_famiglia, use_container_width=True)
-
 
 
 # Crea il bottone per scaricare file Saturazione per Famiglia
@@ -683,10 +548,6 @@ pivot_famiglia['x_label'] = (
     pivot_famiglia['RISORSA PRIMARIA'].astype(str) + ' | ' +
     pivot_famiglia['TURNO'].astype(str)
 )
-
-# st.write('pivot_famiglia con x_label:')
-# st.dataframe(pivot_famiglia, use_container_width=True)
-
 
 
 # Trova le colonne delle famiglie
@@ -792,16 +653,3 @@ for dt in pivot_famiglia['Data'].unique():
 st.stop()
 
 
-
-
-
-
-
-
-# veicolo_file = to_excel_bytes(df_melt_veicolo)
-# st.download_button(
-#     label="📥 Scarica file veicolo",
-#     data=veicolo_file,
-#     file_name='df_veicolo.xlsx',
-#     mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-# )
